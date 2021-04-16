@@ -1,6 +1,5 @@
 #CS173 NTLK practice
 
-
 #from: https://www.youtube.com/watch?v=WYge0KZBhe0
 
 import nltk
