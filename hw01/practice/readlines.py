@@ -6,3 +6,4 @@ data = f.readlines()
 print(type(data))
 print(data)
 
+
