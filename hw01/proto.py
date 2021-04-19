@@ -55,6 +55,7 @@ def create_dictionary_set(dictionary):
         dictionary.add(word.lower())   
     time.sleep(.5) 
 
+
     #brown--------------------------------------
     print("Processing NLTK Brown...")
     for word in brown.words():   
@@ -87,6 +88,7 @@ def create_dictionary_set(dictionary):
              #dictionary.add(word.lower())
              pass
     time.sleep(.5)
+  
 
     print("Ammending dictionary with hand-curated word list...")
     for word in missing_words:        
@@ -94,7 +96,7 @@ def create_dictionary_set(dictionary):
     time.sleep(.5)
 
     count = len(dictionary)
-    print("\nDICTIONARY CREATION COMPLETE(" + str(count) + " words)!\n")
+    print("\nDICTIONARY CREATION COMPLETE(" + format_value(count) + " words)!\n")
     time.sleep(2)
 
 
@@ -121,24 +123,23 @@ def spell_check(dictionary, wordlist):
 
     count = len(badwords)
     if count > 0:
-        print(str(count) +" bad Words Found --------------------")
-        print("------------------------------------------")
-        time.sleep(2)
+        print(format_value(count) +" unknown words found --------------------")
+        print("-----------------------------------------------")
+        time.sleep(1)
 
-
-
-    words = nltk.corpus.words.words()
+ 
 
     for bad in badwords:
-        print("-------------------------")
-        print(bad)
+        print(bad + ": ", end='', flush=True)
+        #print("-------------------------")
+        #print(bad + ": ",)
         get_best_matches(bad, dictionary)
 
 
 #collect set of best matches (dictionary method can not have duplicates...)
 def get_best_matches(misspelling, dictionary):
-    lowest = 1000 #arbitrarily high (insane) number ensures the first iteration will change this
-    candidates = set()
+    lowest = 1000 #arbitrarily high (insane) number ensures the first iteration will always change this
+    candidates = set() #store set of spelling candidates
 
     for word in iter(dictionary):
             ed = nltk.edit_distance(misspelling, word)
@@ -153,10 +154,19 @@ def get_best_matches(misspelling, dictionary):
                 candidates.clear()
                 candidates.add(word)
 
-    print(candidates)
+    #print(candidates)-----------------------------
+    length = len(candidates)
+    count = 0
+    for w in iter(candidates):
+        print(w, end='')
+
+        #print comma separators.. but not after last
+        count +=1
+        if count < length: 
+            print(", ", end='') 
+
+    print("\n\n", end='')
             
-
-
 
 
 #clear screen (https://www.geeksforgeeks.org/clear-screen-python/)-----
@@ -168,6 +178,11 @@ def clear():
     # for mac and linux(here, os.name is 'posix')
     else:
         _ = system('clear')
+
+
+#add commas to numeric output(https://www.geeksforgeeks.org/print-number-commas-1000-separators-python/)
+def format_value(number):
+    return ("{:,}".format(number))
 
 
 
