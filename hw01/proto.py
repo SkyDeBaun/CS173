@@ -1,6 +1,9 @@
 #cs173 spell checker
 #sky debaun
 
+
+from os import system, name
+
 import re
 import nltk
 from nltk.corpus import words #basis for our spell check dictionary
@@ -8,12 +11,10 @@ from nltk.corpus import brown #ammend the dictionary with more words
 from nltk.corpus import gutenberg #ammend the dictionary with more words
 from nltk.corpus import gazetteers
 
-from os import system, name
+import itertools #speed up iterating through sets (my "dictionary")
 import time
 
 
-from spellchecker import SpellChecker
-spell = SpellChecker()
 
 
 #missing words list contains names or other words not present in other sources used
@@ -38,10 +39,12 @@ missing_words = ["edinburgh", "moby", "ahab", "ramadan", "quarterdeck", "whales"
 "deavoured","invokingly", "heeling", "farings", "cenotaphs", "mapple", "resurrections", "caanan", "beefsteaks", "lathering", "tattooings", "flourishings",
 "dreadnaught", "harpooner", "wainscots", "bermuda", "looming", "tuileries" ] 
 
+
+
 ##FUNCTIONS--------------------------------------------------------------------------
 #------------------------------------------------------------------------------------
 
-#create set of valid words------------------------------------------- SET for fast lookups -->> idea.. use multiple nltk corpora for dictionary!!!!!
+#create set of valid words------------------------------------------- SET for fast lookups 
 def create_dictionary_set(dictionary):
     print("CONSTRUCTING DICTIONARY-----------------")
     print("----------------------------------------")
@@ -56,29 +59,32 @@ def create_dictionary_set(dictionary):
     print("Processing NLTK Brown...")
     for word in brown.words():   
         #word = re.sub(r'[^a-zA-Z]', '', word)
-        dictionary.add(word.lower()) 
+        #dictionary.add(word.lower()) 
+        pass
     time.sleep(.5)
 
     #gutenberg-----------------------------------
     print("Processing NLTK Gutenberg...")
     for word in brown.words():
         #word = re.sub(r'[^a-zA-Z]', '', word)
-        dictionary.add(word.lower()) 
+        #dictionary.add(word.lower()) 
+        pass
     time.sleep(.5)
 
     #places--------------------------------------
     print("Processing NLTK Gazetteer...")
     for word in gazetteers.words():
-        dictionary.add(word.lower())
+        #dictionary.add(word.lower())
+        pass
     time.sleep(.5)
 
     #additional word list (https://github.com/dwyl/english-words)
-    print("Ammending dictionary with 100,000 more words...")
+    print("Ammending dictionary with 125,000 more words...")
     with open("wordlist_large_english.txt", 'r') as readfile:
         text = readfile.read()
         tokens = nltk.word_tokenize(text)
         for word in tokens:
-             dictionary.add(word.lower())
+             #dictionary.add(word.lower())
              pass
     time.sleep(.5)
 
@@ -90,6 +96,7 @@ def create_dictionary_set(dictionary):
     count = len(dictionary)
     print("\nDICTIONARY CREATION COMPLETE(" + str(count) + " words)!\n")
     time.sleep(2)
+
 
 
 #create list of words to validate (ie spelling check)---------------- LIST for sequential access
@@ -115,7 +122,7 @@ def spell_check(dictionary, wordlist):
     count = len(badwords)
     if count > 0:
         print(str(count) +" bad Words Found --------------------")
-        print("-----------------------------------------")
+        print("------------------------------------------")
         time.sleep(2)
 
 
@@ -125,16 +132,29 @@ def spell_check(dictionary, wordlist):
     for bad in badwords:
         print("-------------------------")
         print(bad)
-        #print(spell.candidates(bad))
-        #print(type(spell.candidates(bad)))
-        alternates = spell.candidates(bad)
+        get_best_matches(bad, dictionary)
 
-        for alt in alternates:
-            ed = nltk.edit_distance(bad, alt)
-            print("\t" + alt + ": " + str(ed))
-            #ed = nltk.edit_distance(alt, bad)
-            #print(bad, ed)
 
+#collect set of best matches (dictionary method can not have duplicates...)
+def get_best_matches(misspelling, dictionary):
+    lowest = 1000 #arbitrarily high (insane) number ensures the first iteration will change this
+    candidates = set()
+
+    for word in iter(dictionary):
+            ed = nltk.edit_distance(misspelling, word)
+            
+            #if ed equal to existing lowest ed----
+            if ed == lowest:
+                lowest = ed
+                candidates.add(word)
+            #else if ed lower than existing lowest ed.. clean and start new set
+            elif ed < lowest:
+                lowest = ed
+                candidates.clear()
+                candidates.add(word)
+
+    print(candidates)
+            
 
 
 
