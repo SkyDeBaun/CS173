@@ -11,6 +11,11 @@ from nltk.corpus import gazetteers
 from os import system, name
 import time
 
+
+from spellchecker import SpellChecker
+spell = SpellChecker()
+
+
 #missing words list contains names or other words not present in other sources used
 missing_words = ["edinburgh", "moby", "ahab", "ramadan", "quarterdeck", "whales", "grammars", "lexicons", 
 "psalms", "sylphs", "leviathans", "gills", "swims", "spouts", "trans", "asiatics", "comstock", "breaches","rainbows", "mightier", "spermacetti",
@@ -31,7 +36,7 @@ missing_words = ["edinburgh", "moby", "ahab", "ramadan", "quarterdeck", "whales"
 "spouters",  "bowings", "descrying", "voyagings", "fullers", "upheaving", "unstaked", "bivouacs", "capsizings","interblending", "headsmen",  "goadings",
 "stowaways", "rapscallions", "soliloquised", "seychelle", "seychelle", "trenchers", "ramadan", "thews", "earthsman", "wights", "snortings", "hospitalities",
 "deavoured","invokingly", "heeling", "farings", "cenotaphs", "mapple", "resurrections", "caanan", "beefsteaks", "lathering", "tattooings", "flourishings",
-"dreadnaught", "harpooner", "wainscots", "bermuda" ] 
+"dreadnaught", "harpooner", "wainscots", "bermuda", "looming", "tuileries" ] 
 
 ##FUNCTIONS--------------------------------------------------------------------------
 #------------------------------------------------------------------------------------
@@ -62,18 +67,19 @@ def create_dictionary_set(dictionary):
     time.sleep(.5)
 
     #places--------------------------------------
-    print("Processing NLTK Gazetteer(locations)...")
+    print("Processing NLTK Gazetteer...")
     for word in gazetteers.words():
         dictionary.add(word.lower())
     time.sleep(.5)
 
     #additional word list (https://github.com/dwyl/english-words)
-    print("Ammending dictionary with 466,000 additional words...")
+    print("Ammending dictionary with 100,000 more words...")
     with open("wordlist_large_english.txt", 'r') as readfile:
         text = readfile.read()
         tokens = nltk.word_tokenize(text)
         for word in tokens:
              dictionary.add(word.lower())
+             pass
     time.sleep(.5)
 
     print("Ammending dictionary with hand-curated word list...")
@@ -81,7 +87,8 @@ def create_dictionary_set(dictionary):
         dictionary.add(word)
     time.sleep(.5)
 
-    print("\nDICTIONARY CREATION COMPLETE!\n")
+    count = len(dictionary)
+    print("\nDICTIONARY CREATION COMPLETE(" + str(count) + " words)!\n")
     time.sleep(2)
 
 
@@ -93,13 +100,12 @@ def create_word_list(filename, wordlist):
         words = nltk.word_tokenize(text)
     
         for word in words:
-            word = re.sub(r'[^a-zA-Z]', '', word) #strip extraneous chars, nums, etc
+            word = re.sub(r'[^a-zA-Z]', '', word) #strip other extraneous nums, etc
             if not re.search(r"^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$",word, re.IGNORECASE) and word != '': #skip roman numerals                
                 wordlist.append(word.lower().strip())
 
 
-
-
+#check wordlist (our text) using our dictionary------------------------
 def spell_check(dictionary, wordlist):    
     badwords = []
     for word in wordlist:
@@ -112,12 +118,28 @@ def spell_check(dictionary, wordlist):
         print("-----------------------------------------")
         time.sleep(2)
 
-        for bad in badwords:
-            #print(bad + ": " + spell(bad))
-            print(bad)
-            #time.sleep(.25)
 
-#clear screen (https://www.geeksforgeeks.org/clear-screen-python/)
+
+    words = nltk.corpus.words.words()
+
+    for bad in badwords:
+        print("-------------------------")
+        print(bad)
+        #print(spell.candidates(bad))
+        #print(type(spell.candidates(bad)))
+        alternates = spell.candidates(bad)
+
+        for alt in alternates:
+            ed = nltk.edit_distance(bad, alt)
+            print("\t" + alt + ": " + str(ed))
+            #ed = nltk.edit_distance(alt, bad)
+            #print(bad, ed)
+
+
+
+
+
+#clear screen (https://www.geeksforgeeks.org/clear-screen-python/)-----
 def clear():  
     # for windows
     if name == 'nt':
@@ -136,7 +158,6 @@ clear() #lets clear the screen
 dictionary = set()
 create_dictionary_set(dictionary)
 #print(dictionary)
-
 
 wordlist = []
 create_word_list('practice/mobydick.txt', wordlist)
