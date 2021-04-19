@@ -4,5 +4,5 @@
 
 
 
-## Assignment Screen Shots
+## Assignment Screen Shot
 ![image](https://user-images.githubusercontent.com/43687571/115191336-23277f00-a09e-11eb-9d0f-6f28c08cd6fc.png)
