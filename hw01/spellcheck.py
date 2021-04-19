@@ -3,7 +3,7 @@
 #Spring 2021
 
 '''
-Intructions: execute file from command line with filename parameter (the file to spell check)
+Instructions: execute file from command line with filename parameter (the file to spell check)
 ex: python spellcheck.py mobydick.txt
 '''
 
